@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털게임과 문화 - 6주차 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; color: #333; }
+        nav { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 14px; transition: 0.3s; }
+        nav a:hover { background: #34495e; }
+        .current { background: #3498db; font-weight: bold; }
+        
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 40px; border-bottom: 3px solid #3498db; display: inline-block; width: 100%; padding-bottom: 10px; }
+        h2 { background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; margin-top: 50px; }
+        
+        .question-card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+        .q-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        /* 사지선다 버튼 스타일 */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .opt-btn { padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .opt-btn:hover { background: #f0f7ff; border-color: #3498db; }
+        .opt-btn.selected { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* 입력창 스타일 */
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; box-sizing: border-box; margin-top: 10px; outline: none; }
+        input[type="text"]:focus, textarea:focus { border-color: #3498db; }
+        
+        .feedback { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; animation: fadeIn 0.5s; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.info { background: #e8f4fd; color: #0c5460; border: 1px solid #bee5eb; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .guide-text { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; }
+        .check-btn { margin-top: 15px; padding: 10px 20px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .check-btn:hover { background: #34495e; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">2주차</a>
+    <a href="week3.html">3주차</a>
+    <a href="week4.html">4주차</a>
+    <a href="week5.html">5주차</a>
+    <a href="week6.html" class="current">6주차</a>
+    <a href="week7.html">7주차</a>
+    <a href="all.html">전체보기</a>
+</nav>
+
+<h1>6주차: 게임의 시선 (포스트휴먼)</h1>
+
+<h2>1. 단답형 (답안 입력 후 Enter)</h2>
+<div id="short-questions"></div>
+
+<h2>2. 사지선다 (모두 고르세요 - 버튼 클릭)</h2>
+<div id="multiple-questions"></div>
+
+<h2>3. 서술형 (생각을 정리해 쓴 후 Enter)</h2>
+<div id="essay-questions"></div>
+
+<script>
+// 요청하신 3주차 데이터
+const data = {
+    short: [
+        { q: "인류 역사가 기존의 전통과 관례에 대해 비판하고 해체하며 나아가는 반복적인 과정을 무엇이라 하는가?", a: "시대정신" },
+        { q: "데카르트가 주장한 '나는 생각한다, 고로 존재한다'는 명제에서 강조하는 인간의 핵심 특성은?", a: "생각" },
+        { q: "20세기 후반에 등장하여 절대적인 진리나 권력을 해체하고자 했던 사조를 무엇이라 하는가?", a: "포스트모더니즘" },
+        { q: "인간과 기계의 경계가 해체된 시대를 뜻하며, 인간 이후의 새로운 존재 양식을 탐구하는 개념은?", a: "포스트휴먼" },
+        { q: "생물학적 유기체와 기계적 장치가 결합된 존재를 일컫는 용어는?", a: "사이보그" },
+        { q: "포스트휴먼 시대의 흐름 중 하나로, 신권, 왕권, 권력에 이어 해체되는 대상은 무엇인가?", a: "인간" },
+        { q: "사이보그의 표현 방식과 주제를 깊이 있게 다뤄 이후 미디어에 큰 영향을 준 시로 마사무네의 작품은?", a: "공각기동대" },
+        { q: "기술의 발전으로 인해 인간의 신체적 한계를 극복하려는 움직임을 ( )주의라고 한다. 빈칸은?", a: "트랜스휴먼" },
+        { q: "인간과 비인간의 경계가 모호해지는 현상을 분석할 때, 무엇이 ( )을 장악하는가라는 질문이 중요하다. 빈칸은?", a: "시선" },
+        { q: "기존의 인간 중심주의에서 벗어나 기계나 동물을 평등한 존재로 보려는 시각을 ( )주의적 관점이라 한다.", a: "포스트휴먼" }
+    ],
+    multiple: [
+        { q: "인류 역사의 시대별 해체 대상이 바르게 연결된 것을 모두 고르세요.", opts: ["중세 - 신권 해체", "르네상스 - 왕권 해체", "모더니즘 - 권력 해체", "포스트휴먼 - 인간 해체"], ans: [0, 1, 3] },
+        { q: "포스트모더니즘의 특징으로 옳은 것을 모두 고르세요.", opts: ["절대적이고 보편적인 진리를 신봉한다.", "기존의 권위와 거대 서사를 해체한다.", "다양성과 상대성을 존중한다.", "이성 중심주의를 비판적으로 바라본다."], ans: [1, 2, 3] },
+        { q: "포스트휴먼(Post-human) 담론이 다루는 내용을 모두 고르세요.", opts: ["인간과 기계의 유전적/기술적 결합", "인간 중심주의적 사고방식의 고수", "비인간 존재(AI, 동물 등)와의 관계 재정립", "신체적 한계를 넘어서는 증강 기술"], ans: [0, 2, 3] },
+        { q: "사이보그(Cyborg)가 문화 콘텐츠에서 재현되는 방식을 모두 고르세요.", opts: ["기억과 정체성의 혼란을 겪는 존재", "단순히 인간의 명령에만 따르는 도구", "인간보다 뛰어난 신체 능력을 가진 존재", "인간성과 기계성 사이에서 갈등하는 모습"], ans: [0, 2, 3] },
+        { q: "데카르트의 '생각하는 인간' 관점에 대한 설명으로 옳은 것을 모두 고르세요.", opts: ["인간은 현재에 만족하지 않고 비판하는 존재다.", "이성을 통해 세계를 파악할 수 있다고 본다.", "기존의 관례를 무비판적으로 수용한다.", "근대 모더니즘의 기초가 된 사상이다."], ans: [0, 1, 3] },
+        { q: "게임 <공각기동대>나 관련 장르에서 시선 권력이 작동하는 방식을 모두 고르세요.", opts: ["사이보그의 신체를 관찰의 대상으로 삼는 시선", "기계와 인간의 경계를 무너뜨리는 시점 연출", "항상 인간만이 주체가 되는 고정된 시선", "정보 네트워크를 통한 감시와 통제의 시선"], ans: [0, 1, 3] },
+        { q: "포스트휴먼 시대에 인간의 정의가 변화하는 이유를 모두 고르세요.", opts: ["인공지능의 지적 능력이 비약적으로 발전해서", "의족, 의수 등 신체 일부가 기계로 대체되어서", "인간만이 영혼을 가졌다는 믿음이 약화되어서", "기술이 인간의 생물학적 진화 속도를 앞질러서"], ans: [0, 1, 2] },
+        { q: "포스트모더니즘 시대의 문화 트렌드에 대한 설명을 모두 고르세요.", opts: ["장르 간의 경계가 허물어지는 퓨전 현상", "고급 예술과 대중 예술의 구분이 모호해짐", "하나의 정답보다는 다양한 해석을 장려함", "서구 중심의 가치관이 더욱 강화됨"], ans: [0, 1, 2] },
+        { q: "트랜스휴머니즘과 포스트휴머니즘의 공통적 관심사를 모두 고르세요.", opts: ["과학 기술을 통한 인간 능력의 확장", "생명 윤리와 기술의 결합 문제", "전통적인 인간 개념에 대한 재검토", "과거 신권 정치 시대로의 회귀"], ans: [0, 1, 2] },
+        { q: "미디어 속 사이보그 재현의 의의를 모두 고르세요.", opts: ["인간다움이란 무엇인가에 대한 질문을 던짐", "기술 문명에 대한 공포나 기대를 시각화함", "인간과 기계의 이분법적 사고를 강화함", "사회적 소수자와 기술의 결합 가능성을 탐구함"], ans: [0, 1, 3] },
+        { q: "6주차 강의에서 언급된 '경계를 넘어서'의 의미를 모두 고르세요.", opts: ["기존의 관습과 전통을 비판적으로 해체함", "인간과 비인간의 이분법적 구분을 타파함", "새로운 시대정신을 바탕으로 대안을 제시함", "물리적인 국가 간의 경계만을 의미함"], ans: [0, 1, 2] },
+        { q: "포스트휴먼 시대의 게임 기획 시 고려할 점을 모두 고르세요.", opts: ["플레이어 캐릭터의 신체 증강 및 변화 가능성", "비인간 동료(AI)와의 깊이 있는 상호작용", "인간 중심적인 선악 구도의 해체 시도", "단순한 물리적 타격 위주의 액션 구성"], ans: [0, 1, 2] },
+        { q: "시대정신(Zeitgeist)이 문화 콘텐츠에 미치는 영향을 모두 고르세요.", opts: ["그 시대 사람들이 공유하는 고민과 욕망을 반영함", "특정 시기에 유행하는 장르적 트렌드를 형성함", "창작자의 개인적 취향과는 완전히 무관함", "사회의 변화에 따라 재현의 방식이 달라짐"], ans: [0, 1, 3] },
+        { q: "사이보그 담론이 여성주의(페미니즘)와 연결되는 지점을 모두 고르세요.", opts: ["생물학적 결정론에서 벗어날 수 있는 가능성", "전통적인 젠더 구분을 무너뜨리는 신체성", "남성 응시를 강화하는 도구로만 쓰이는 한계", "사회적으로 규정된 '자연스러운' 몸에 대한 저항"], ans: [0, 1, 3] },
+        { q: "포스트모더니즘과 포스트휴먼의 관계에 대한 설명을 모두 고르세요.", opts: ["둘 다 인간 중심주의적 권위의 해체를 지향한다.", "포스트모더니즘의 해체주의 정신이 포스트휴먼 담론으로 이어진다.", "서로 아무런 상관이 없는 별개의 사조이다.", "다원성과 복합성을 인정하는 태도를 공유한다."], ans: [0, 1, 3] }
+    ],
+    essay: [
+        { q: "데카르트의 '생각하는 인간'이 인류 역사에서 끊임없는 비판과 해체의 과정을 겪는 이유를 서술하시오.", a: "인간은 생각하는 존재로서 현재에 안주하지 않고 끊임없이 기존 관례를 의심하며 더 나은 방향을 찾으려는 습성을 지녔기 때문입니다." },
+        { q: "포스트휴먼 시대에 '사이보그' 재현이 인간과 기계의 경계에 대해 던지는 핵심 질문은 무엇인가?", a: "신체의 일부가 기계로 대체되거나 의식이 데이터화될 때, '인간을 인간답게 만드는 본질(Ghost)'이 어디에 있는가라는 질문을 던집니다." },
+        { q: "포스트모더니즘의 '권력 해체' 담론이 게임 속 시선과 재현 방식에 미친 영향을 논하시오.", a: "절대적인 제작자의 시선에서 벗어나 플레이어의 다양한 해석과 주체적 개입을 강조하며, 소외되었던 소수자의 목소리를 재현의 중심으로 가져오게 했습니다." }
+    ]
+};
+// 1. 단답형 렌더링 (버튼 추가)
+const shortContainer = document.getElementById('short-questions');
+data.short.forEach((item, i) => {
+    shortContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <input type="text" id="short-input-${i}" placeholder="답안을 입력하세요">
+            <button class="check-btn" onclick="checkShort(${i}, '${item.a}')">정답 확인</button>
+            <div id="sa${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 2. 사지선다 렌더링 (기존 유지)
+const multiContainer = document.getElementById('multiple-questions');
+data.multiple.forEach((item, i) => {
+    let optsHtml = item.opts.map((opt, oi) => 
+        `<button class="opt-btn" onclick="toggleOpt(this)">${oi+1}. ${opt}</button>`
+    ).join('');
+    
+    multiContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <div class="options-grid" id="opts${i}">${optsHtml}</div>
+            <button class="check-btn" onclick="checkMulti(${i}, [${item.ans}])">정답 확인</button>
+            <div id="ma${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 3. 서술형 렌더링 (버튼 추가)
+const essayContainer = document.getElementById('essay-questions');
+data.essay.forEach((item, i) => {
+    essayContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <textarea id="essay-input-${i}" rows="3" placeholder="생각을 정리해 보세요"></textarea>
+            <button class="check-btn" onclick="showEssay(${i})">모범 답안 보기</button>
+            <div id="ea${i}" class="feedback info"><strong>[강의 기준 예시 답안]</strong><br>${item.a}</div>
+        </div>`;
+});
+
+// --- 로직 함수들 ---
+
+function checkShort(idx, correct) {
+    const val = document.getElementById(`short-input-${idx}`).value.trim();
+    const f = document.getElementById(`sa${idx}`);
+    f.style.display = 'block';
+    if (val.includes(correct) && val !== "") {
+        f.className = 'feedback correct';
+        f.innerHTML = `정답입니다! (핵심 키워드: ${correct})`;
+    } else {
+        f.className = 'feedback wrong';
+        f.innerHTML = `다시 한번 생각해보세요. (정답: ${correct})`;
+    }
+}
+
+function toggleOpt(btn) {
+    btn.classList.toggle('selected');
+}
+
+function checkMulti(qIndex, correctIndices) {
+    const container = document.getElementById(`opts${qIndex}`);
+    const btns = container.querySelectorAll('.opt-btn');
+    const feedback = document.getElementById(`ma${qIndex}`);
+    let selected = [];
+    btns.forEach((btn, idx) => { if(btn.classList.contains('selected')) selected.push(idx); });
+
+    feedback.style.display = 'block';
+    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctIndices.sort());
+    
+    if (isCorrect && selected.length > 0) {
+        feedback.className = 'feedback correct';
+        feedback.innerText = "정확하게 모두 고르셨습니다!";
+    } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerText = `오답입니다. 정답 번호: ${correctIndices.map(v => v+1).join(', ')}`;
+    }
+}
+
+function showEssay(idx) {
+    const f = document.getElementById(`ea${idx}`);
+    // 토글 기능: 이미 보이면 숨기고, 안 보이면 보여줌
+    if (f.style.display === 'block') {
+        f.style.display = 'none';
+    } else {
+        f.style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>

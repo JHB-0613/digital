@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>게임인문학 통합 랜덤 평가</title>
+    <style>
+        /* 기존 7주차 테마 스타일 유지 */
+        body { font-family: 'Pretendard', sans-serif; line-height: 1.7; max-width: 900px; margin: 40px auto; padding: 20px; background-color: #fffafb; color: #333; }
+        h1 { text-align: center; color: #b71c1c; margin-bottom: 10px; border-bottom: 2px solid #ffca28; padding-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 40px; }
+        
+        /* 네비게이션 바 */
+        .nav-container { text-align: center; margin-bottom: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .nav-btn { text-decoration: none; padding: 10px 18px; background-color: #ffffff; color: #b71c1c; border: 2px solid #b71c1c; border-radius: 8px; font-weight: 600; transition: 0.3s; }
+        .nav-btn:hover { background-color: #b71c1c; color: #ffffff; }
+        .active-nav { background-color: #b71c1c !important; color: #ffffff !important; }
+
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); }
+        
+        .question-item { margin-bottom: 40px; padding: 20px; border-left: 5px solid #b71c1c; background: #fff8f8; border-radius: 0 10px 10px 0; }
+        .type-tag { display: inline-block; background: #ffca28; color: #b71c1c; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-right: 5px; }
+        .week-tag { display: inline-block; background: #b71c1c; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; }
+        
+        .q-text { font-size: 1.1em; font-weight: 700; color: #2c3e50; margin: 15px 0; display: block; }
+        
+        textarea { width: 100%; height: 80px; padding: 15px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; resize: vertical; box-sizing: border-box; }
+        .ans-btn { background: #b71c1c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; float: right; margin-top: 10px; }
+        .answer-content { display: none; margin-top: 45px; padding: 15px; background: #f9f9f9; border: 1px dashed #b71c1c; clear: both; }
+        
+        .refresh-section { text-align: center; margin-top: 40px; }
+        .refresh-btn { background: #ffca28; color: #b71c1c; border: 2px solid #b71c1c; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-container">
+        <a href="index.html" class="nav-btn">2주차</a>
+        <a href="week3.html" class="nav-btn">3주차</a>
+        <a href="week4.html" class="nav-btn">4주차</a>
+        <a href="week5.html" class="nav-btn">5주차</a>
+        <a href="week6.html" class="nav-btn">6주차</a>
+        <a href="week7.html" class="nav-btn">7주차</a>
+        <a href="all.html" class="nav-btn active-nav">전체 랜덤</a>
+    </div>
+
+    <h1>🎲 게임인문학 유형별 랜덤 평가</h1>
+    <p class="subtitle">각 주차당 [서술형 1개, 단답형 2개, 객관식 2개] 총 5문제를 추출합니다.</p>
+
+    <div class="container" id="quiz-container">
+        <p style="text-align:center;">문제를 구성 중입니다...</p>
+    </div>
+
+    <div class="refresh-section">
+        <button class="refresh-btn" onclick="generateQuiz()">🔄 새로운 문제 세트 만들기</button>
+    </div>
+
+    <script>
+        const weekFiles = ['index.html', 'week3.html', 'week4.html', 'week5.html', 'week6.html', 'week7.html'];
+
+        async function generateQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            for (const file of weekFiles) {
+                try {
+                    const response = await fetch(file);
+                    const text = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/html');
+                    
+                    const allQuestions = Array.from(doc.querySelectorAll('.question-item'));
+                    
+                    // 유형별 분류
+                    const subjective = allQuestions.filter(q => q.innerText.includes('서술형'));
+                    const shortAns = allQuestions.filter(q => q.innerText.includes('단답형'));
+                    const multiple = allQuestions.filter(q => q.innerText.includes('객관식'));
+
+                    // 랜덤 추출 (서술1, 단답2, 객관2)
+                    const selected = [
+                        ...getRandom(subjective, 1),
+                        ...getRandom(shortAns, 2),
+                        ...getRandom(multiple, 2)
+                    ];
+
+                    const weekTitle = file === 'index.html' ? '2주차' : file.replace('.html', '').replace('week', '') + '주차';
+                    
+                    selected.forEach(q => {
+                        const clone = q.cloneNode(true);
+                        // 주차 태그 추가
+                        const tag = document.createElement('span');
+                        tag.className = 'week-tag';
+                        tag.innerText = weekTitle;
+                        clone.prepend(tag);
+                        
+                        // 기존 버튼 이벤트 재설정
+                        const btn = clone.querySelector('button');
+                        const ans = clone.querySelector('.answer-content');
+                        if(btn && ans) {
+                            btn.onclick = () => {
+                                ans.style.display = ans.style.display === 'block' ? 'none' : 'block';
+                                btn.innerText = ans.style.display === 'block' ? '닫기' : '정답 확인';
+                            };
+                        }
+                        
+                        container.appendChild(clone);
+                    });
+                } catch (e) {
+                    console.error(file + " 로드 실패");
+                }
+            }
+        }
+
+        function getRandom(arr, n) {
+            const shuffled = [...arr].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, n);
+        }
+
+        generateQuiz();
+    </script>
+</body>
+</html>

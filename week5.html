@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털게임과 문화 - 5주차 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; color: #333; }
+        nav { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 14px; transition: 0.3s; }
+        nav a:hover { background: #34495e; }
+        .current { background: #3498db; font-weight: bold; }
+        
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 40px; border-bottom: 3px solid #3498db; display: inline-block; width: 100%; padding-bottom: 10px; }
+        h2 { background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; margin-top: 50px; }
+        
+        .question-card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+        .q-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        /* 사지선다 버튼 스타일 */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .opt-btn { padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .opt-btn:hover { background: #f0f7ff; border-color: #3498db; }
+        .opt-btn.selected { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* 입력창 스타일 */
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; box-sizing: border-box; margin-top: 10px; outline: none; }
+        input[type="text"]:focus, textarea:focus { border-color: #3498db; }
+        
+        .feedback { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; animation: fadeIn 0.5s; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.info { background: #e8f4fd; color: #0c5460; border: 1px solid #bee5eb; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .guide-text { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; }
+        .check-btn { margin-top: 15px; padding: 10px 20px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .check-btn:hover { background: #34495e; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">2주차</a>
+    <a href="week3.html">3주차</a>
+    <a href="week4.html">4주차</a>
+    <a href="week5.html" class="current">5주차</a>
+    <a href="week6.html">6주차</a>
+    <a href="week7.html">7주차</a>
+    <a href="all.html">전체보기</a>
+</nav>
+
+<h1>5주차: 게임의 시선 (탈 식민주의)</h1>
+
+<h2>1. 단답형 (답안 입력 후 Enter)</h2>
+<div id="short-questions"></div>
+
+<h2>2. 사지선다 (모두 고르세요 - 버튼 클릭)</h2>
+<div id="multiple-questions"></div>
+
+<h2>3. 서술형 (생각을 정리해 쓴 후 Enter)</h2>
+<div id="essay-questions"></div>
+
+<script>
+// 요청하신 3주차 데이터
+const data = {
+    short: [
+        { q: "로라 멀비가 제시한 개념으로, 미디어가 남성적 욕망을 중심으로 시선을 구성하는 현상은?", a: "남성 응시" },
+        { q: "게임 속 여성 캐릭터의 방어력과 노출도가 비례한다는 모순을 비꼬는 용어는?", a: "비키니 아머" },
+        { q: "서구인이 동양에 대해 갖는 왜곡된 시선이나 편견을 뜻하는 에드워드 사이드의 용어는?", a: "오리엔탈리즘" },
+        { q: "군대를 파견해 식민 통치 체제를 만들고 토착민을 억압하여 본국에 이득이 되게 하는 이념은?", a: "식민주의" },
+        { q: "식민 지배 종식 이후에도 남아있는 식민주의 잔재를 비판하고 대항하고자 하는 담론은?", a: "탈식민주의" },
+        { q: "타히티 주민을 순박하고 관능적인 '야만인'으로 표현하여 서구의 편견을 보여준 화가는?", a: "고갱" },
+        { q: "게임에서 여성 캐릭터가 주체적 행동보다 시각적 감상의 대상으로 전락하는 것을 무엇이라 하는가?", a: "객체화" },
+        { q: "5주차 자료에서 '빠르고 강하게 일어나는 것의 부작용'으로 언급된 한국의 대중문화는?", a: "K팝" },
+        { q: "여성 캐릭터 소개 시 발끝부터 머리까지 신체를 훑는 카메라 기법을 무엇이라 하는가?", a: "스캔" },
+        { q: "게임 속 시선 권력을 분석할 때, '누가 ( )을 장악하는가'가 핵심 질문이다. 빈칸은?", a: "시선" }
+    ],
+    multiple: [
+        { q: "로라 멀비가 정의한 미디어의 세 가지 시선에 포함되는 것을 모두 고르세요.", opts: ["카메라의 시선", "등장인물의 시선", "관객(플레이어)의 시선", "비평가의 시선"], ans: [0, 1, 2] },
+        { q: "상업 게임에서 여성 캐릭터가 반복적으로 재현되는 특징을 모두 고르세요.", opts: ["서사의 중심보다 외형적 매력이 강조됨", "능력보다 노출이나 포즈가 부각됨", "개별 성격보다 정형화된 여성성이 반복됨", "항상 남성보다 높은 권력을 가짐"], ans: [0, 1, 2] },
+        { q: "남성 응시(Male Gaze)가 반영된 게임 연출 사례를 모두 고르세요.", opts: ["전투 중 불필요한 특정 신체 부위 클로즈업", "캐릭터 소개 시 신체를 훑는 카메라 워킹", "여성 캐릭터를 조종할 때의 특정 시점(TPO)", "캐릭터의 지적 능력을 강조하는 연출"], ans: [0, 1, 2] },
+        { q: "오리엔탈리즘(Orientalism)의 특징을 모두 고르세요.", opts: ["동양을 신비롭지만 미개한 곳으로 규정함", "서구의 우월성을 정당화하는 도구로 쓰임", "동양의 실제 문화를 있는 그대로 존중함", "동양 여성을 순종적이거나 요부로 재현함"], ans: [0, 1, 3] },
+        { q: "식민주의적 시각에서 '식민지인'을 묘사하는 방식으로 옳은 것을 모두 고르세요.", opts: ["게으르고 잔인한 존재", "보호가 필요한 순진한 존재", "스스로 통치할 능력이 없는 존재", "유럽인과 대등한 문명적 존재"], ans: [0, 1, 2] },
+        { q: "게임 <툼 레이더>의 라라 크로프트 캐릭터 변화가 시사하는 점을 모두 고르세요.", opts: ["초기에는 전형적인 남성 응시의 대상이었음", "리부트 이후 주체적인 생존자로 재구성됨", "캐릭터의 외형 변화는 시대적 시선의 변화를 반영함", "여전히 성적 대상화에만 머물러 있음"], ans: [0, 1, 2] },
+        { q: "탈식민주의 비판 담론의 목적으로 옳은 것을 모두 고르세요.", opts: ["식민 지배의 지속적인 영향력을 밝혀냄", "서구 중심적 가치관에 대항함", "제국주의적 침략을 경제적으로 정당화함", "소외된 지역의 목소리를 회복함"], ans: [0, 1, 3] },
+        { q: "게임 속 '비키니 아머'가 비판받는 이유를 모두 고르세요.", opts: ["방어구라는 본래의 기능적 당위성이 없음", "여성 캐릭터를 성적 도구로만 소비함", "실제 역사적 갑옷과 일치하기 때문", "게이머의 몰입을 방해하는 평면적 재현임"], ans: [0, 1, 3] },
+        { q: "서구 미디어에서 아시아인을 재현하는 스테레오타입을 모두 고르세요.", opts: ["무술에 능한 신비한 인물", "수학을 잘하는 너드(Nerd)", "서구인보다 체격이 건장한 전사", "서구 문명의 구원이 필요한 약자"], ans: [0, 1, 3] },
+        { q: "들라크루아의 <사르다나팔의 죽음>이 전달하는 메시지를 모두 고르세요.", opts: ["동양 왕의 퇴폐와 향락 강조", "동양이 식민화된 원인을 내부 탓으로 돌림", "동양 문화의 도덕적 타락을 시각화함", "서구의 침략을 비판함"], ans: [0, 1, 2] },
+        { q: "여성 게이머의 증가가 게임 디자인에 미치는 영향을 모두 고르세요.", opts: ["여성 캐릭터의 서사가 깊어짐", "성적 대상화 위주의 연출에 대한 비판 증가", "여성 플레이어를 배려한 다양한 디자인 등장", "남성 전용 게임의 생산이 중단됨"], ans: [0, 1, 2] },
+        { q: "제국주의 시대 예술가들이 타 지역을 '야만적'으로 그린 이유를 모두 고르세요.", opts: ["자국 문명의 우월함을 확인하기 위해", "식민 지배를 '문명화'라는 명분으로 정당화하기 위해", "실제 타 지역의 높은 문명을 몰랐기 때문에", "서구 관객의 이국적인 호기심을 충족하기 위해"], ans: [0, 1, 3] },
+        { q: "게임 비평에서 '시선'을 분석하는 의의를 모두 고르세요.", opts: ["이미지 이면의 권력 관계를 파악함", "당연하게 여겨온 재현의 문제를 발견함", "게임의 하드웨어 성능을 측정함", "더 나은 다양성을 확보하기 위한 기초가 됨"], ans: [0, 1, 3] },
+        { q: "문화적 재현에서 '타자화'란 무엇인지 모두 고르세요.", opts: ["특정 집단을 '나'와 다른 이질적 존재로 규정함", "대상을 주체가 아닌 관찰의 대상으로 만듦", "상대방의 입장에서 문화를 깊이 이해함", "편견을 바탕으로 대상을 고립시킴"], ans: [0, 1, 3] },
+        { q: "5주차 수업에서 강조한 '이미지를 보는 태도'로 옳은 것을 모두 고르세요.", opts: ["무엇이 그려졌는가보다 '누가 어떻게' 보는가에 주목", "당연해 보이는 이미지에 '왜?'라고 질문하기", "작가의 의도와 관계없이 내 느낌대로만 감상하기", "재현된 이미지가 가진 권력의 의도를 파악하기"], ans: [0, 1, 3] }
+    ],
+    essay: [
+        { q: "로라 멀비가 제시한 '남성 응시(Male Gaze)'의 세 가지 층위가 게임 플레이 경험에서 어떻게 나타나는지 서술하시오.", a: "카메라 앵글(제작자), 게임 내 남성 캐릭터, 그리고 실제 플레이어의 시선이 모두 남성적 욕망을 중심으로 결합되어 여성을 보여지는 객체로 만듭니다." },
+        { q: "게임 속 '오리엔탈리즘' 재현이 동양권 이용자들에게 줄 수 있는 왜곡된 인식에 대해 논하시오.", a: "자신의 문화를 신비롭거나 미개한 것으로 타자화하여 인식하게 만들며, 서구 중심적 가치관을 무비판적으로 수용하게 할 위험이 있습니다." },
+        { q: "다양한 인종과 성별의 '주체적 재현'이 게임 산업의 성장에 왜 상업적 전략이 되는지 설명하시오.", a: "글로벌 시장의 이용자층이 다양해짐에 따라, 특정 집단을 배제하지 않는 공정한 재현이 더 넓은 타겟 유저를 확보하고 브랜드 가치를 높이는 핵심 요소가 되기 때문입니다." }
+    ]
+};
+// 1. 단답형 렌더링 (버튼 추가)
+const shortContainer = document.getElementById('short-questions');
+data.short.forEach((item, i) => {
+    shortContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <input type="text" id="short-input-${i}" placeholder="답안을 입력하세요">
+            <button class="check-btn" onclick="checkShort(${i}, '${item.a}')">정답 확인</button>
+            <div id="sa${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 2. 사지선다 렌더링 (기존 유지)
+const multiContainer = document.getElementById('multiple-questions');
+data.multiple.forEach((item, i) => {
+    let optsHtml = item.opts.map((opt, oi) => 
+        `<button class="opt-btn" onclick="toggleOpt(this)">${oi+1}. ${opt}</button>`
+    ).join('');
+    
+    multiContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <div class="options-grid" id="opts${i}">${optsHtml}</div>
+            <button class="check-btn" onclick="checkMulti(${i}, [${item.ans}])">정답 확인</button>
+            <div id="ma${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 3. 서술형 렌더링 (버튼 추가)
+const essayContainer = document.getElementById('essay-questions');
+data.essay.forEach((item, i) => {
+    essayContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <textarea id="essay-input-${i}" rows="3" placeholder="생각을 정리해 보세요"></textarea>
+            <button class="check-btn" onclick="showEssay(${i})">모범 답안 보기</button>
+            <div id="ea${i}" class="feedback info"><strong>[강의 기준 예시 답안]</strong><br>${item.a}</div>
+        </div>`;
+});
+
+// --- 로직 함수들 ---
+
+function checkShort(idx, correct) {
+    const val = document.getElementById(`short-input-${idx}`).value.trim();
+    const f = document.getElementById(`sa${idx}`);
+    f.style.display = 'block';
+    if (val.includes(correct) && val !== "") {
+        f.className = 'feedback correct';
+        f.innerHTML = `정답입니다! (핵심 키워드: ${correct})`;
+    } else {
+        f.className = 'feedback wrong';
+        f.innerHTML = `다시 한번 생각해보세요. (정답: ${correct})`;
+    }
+}
+
+function toggleOpt(btn) {
+    btn.classList.toggle('selected');
+}
+
+function checkMulti(qIndex, correctIndices) {
+    const container = document.getElementById(`opts${qIndex}`);
+    const btns = container.querySelectorAll('.opt-btn');
+    const feedback = document.getElementById(`ma${qIndex}`);
+    let selected = [];
+    btns.forEach((btn, idx) => { if(btn.classList.contains('selected')) selected.push(idx); });
+
+    feedback.style.display = 'block';
+    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctIndices.sort());
+    
+    if (isCorrect && selected.length > 0) {
+        feedback.className = 'feedback correct';
+        feedback.innerText = "정확하게 모두 고르셨습니다!";
+    } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerText = `오답입니다. 정답 번호: ${correctIndices.map(v => v+1).join(', ')}`;
+    }
+}
+
+function showEssay(idx) {
+    const f = document.getElementById(`ea${idx}`);
+    // 토글 기능: 이미 보이면 숨기고, 안 보이면 보여줌
+    if (f.style.display === 'block') {
+        f.style.display = 'none';
+    } else {
+        f.style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>

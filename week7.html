@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털게임과 문화 - 7주차 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; color: #333; }
+        nav { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 14px; transition: 0.3s; }
+        nav a:hover { background: #34495e; }
+        .current { background: #3498db; font-weight: bold; }
+        
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 40px; border-bottom: 3px solid #3498db; display: inline-block; width: 100%; padding-bottom: 10px; }
+        h2 { background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; margin-top: 50px; }
+        
+        .question-card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+        .q-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        /* 사지선다 버튼 스타일 */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .opt-btn { padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .opt-btn:hover { background: #f0f7ff; border-color: #3498db; }
+        .opt-btn.selected { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* 입력창 스타일 */
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; box-sizing: border-box; margin-top: 10px; outline: none; }
+        input[type="text"]:focus, textarea:focus { border-color: #3498db; }
+        
+        .feedback { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; animation: fadeIn 0.5s; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.info { background: #e8f4fd; color: #0c5460; border: 1px solid #bee5eb; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .guide-text { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; }
+        .check-btn { margin-top: 15px; padding: 10px 20px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .check-btn:hover { background: #34495e; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">2주차</a>
+    <a href="week3.html">3주차</a>
+    <a href="week4.html">4주차</a>
+    <a href="week5.html">5주차</a>
+    <a href="week6.html">6주차</a>
+    <a href="week7.html" class="current">7주차</a>
+    <a href="all.html">전체보기</a>
+</nav>
+
+<h1>7주차: 게임기획</h1>
+
+<h2>1. 단답형 (답안 입력 후 Enter)</h2>
+<div id="short-questions"></div>
+
+<h2>2. 사지선다 (모두 고르세요 - 버튼 클릭)</h2>
+<div id="multiple-questions"></div>
+
+<h2>3. 서술형 (생각을 정리해 쓴 후 Enter)</h2>
+<div id="essay-questions"></div>
+
+<script>
+// 요청하신 3주차 데이터
+const data = {
+    short: [
+        { q: "막연한 의도인 '계획'을 설명과 공유를 위해 구체화하여 문서화하는 과정을 무엇이라 하는가?", a: "기획" },
+        { q: "게임 기획의 핵심 요소로, 사람마다 느끼는 지점이 달라 철저한 시장조사가 필요한 이것은?", a: "재미" },
+        { q: "개발 전략 수립 중 '요즘 어떤 게임이 대세인가?'를 파악하기 위해 가장 먼저 수행하는 단계는?", a: "시장조사" },
+        { q: "강점(Strength), 약점(Weakness), 기회(Opportunity), 위협(Threat)을 분석하는 마케팅 도구는?", a: "SWOT" },
+        { q: "우리 게임을 즐길 가상의 대표 사용자를 설정하여 구체적인 시나리오를 작성하는 기법은?", a: "퍼소나" },
+        { q: "게임이 아닌 영역(의료, 교육 등)에 게임의 메커니즘과 요소를 접목하는 것을 무엇이라 하는가?", a: "게이미피케이션" },
+        { q: "게임 개발 단계 중 줄거리, 방식, 흐름 등을 구상하여 설계하는 단계는 ( ) 설계이다. 빈칸은?", a: "시스템" },
+        { q: "시장조사에서 정부의 정책이나 게임 산업 전반의 트렌드를 분석하는 것을 ( ) 분석이라 한다.", a: "환경" },
+        { q: "기획자가 아이디어를 낼 때 정해진 규칙 없이 자유롭게 발상하는 단계를 무엇이라 하는가?", a: "아이디어 개발" },
+        { q: "암 환자의 치료 교육을 위해 나노로봇 슈팅 게임 형식으로 제작된 게이미피케이션 사례는?", a: "리미션" }
+    ],
+    multiple: [
+        { q: "계획(Plan)과 기획(Planning)의 차이점으로 옳은 것을 모두 고르세요.", opts: ["계획은 막연한 의도나 바람에 가깝다.", "기획은 공유를 위해 구체적으로 설계하는 과정이다.", "기획은 반드시 문서화를 수반한다.", "계획과 기획은 용어만 다를 뿐 완벽히 같은 의미다."], ans: [0, 1, 2] },
+        { q: "게임 개발의 일반적인 순서로 옳은 과정을 모두 고르세요.", opts: ["시장조사 → 컨셉 결정 → 시스템 설계", "그래픽/사운드 작업 → 결과물 통합 → 테스트", "테스트 → 보완 및 수정 → 출시", "출시 → 시장조사 → 컨셉 결정"], ans: [0, 1, 2] },
+        { q: "시장조사의 4대 분석 요소에 포함되는 것을 모두 고르세요.", opts: ["사용자(User) 분석", "경쟁자(Competitor) 분석", "거시 환경(Environment) 분석", "개발자 취향(Developer) 분석"], ans: [0, 1, 2] },
+        { q: "SWOT 분석의 구성 요소와 설명이 바르게 연결된 것을 모두 고르세요.", opts: ["Strength: 내부적으로 내가 잘하는 것", "Opportunity: 외부 환경에서 나에게 유리한 기회", "Weakness: 외부 환경의 부정적인 위협", "Threat: 외부에서 발생하는 위협 요소"], ans: [0, 1, 3] },
+        { q: "게임 기획에서 '퍼소나(Persona)'를 설정하는 이유를 모두 고르세요.", opts: ["타겟 사용자의 니즈를 구체적으로 파악하기 위해", "사용자의 상황과 목표에 맞는 기능을 도출하기 위해", "실제 존재하지 않는 허구의 인물을 찬양하기 위해", "기획자의 주관적 판단을 배제하고 객관성을 높이기 위해"], ans: [0, 1, 3] },
+        { q: "게이미피케이션(Gamification)의 기대 효과를 모두 고르세요.", opts: ["사용자의 몰입과 참여도를 높인다.", "지루한 과정을 재미있는 경험으로 변환한다.", "정신적인 스트레스를 경감시키기도 한다.", "반드시 유료 결제를 유도해야만 성공한다."], ans: [0, 1, 2] },
+        { q: "시장조사 중 '사용자 분석'에서 질문해야 할 내용을 모두 고르세요.", opts: ["대중이 원하는 게임은 무엇인가?", "유저들이 현재 어떤 게임에 돈을 쓰는가?", "경쟁사는 어떤 신작을 준비 중인가?", "우리 게임의 주 타겟 연령층은 누구인가?"], ans: [0, 1, 3] },
+        { q: "환경 분석(External Environment) 시 고려해야 할 사항을 모두 고르세요.", opts: ["정부의 게임 관련 규제 및 정책", "현재 게임 시장의 플랫폼 트렌드", "우리 팀 프로그래머의 코딩 실력", "확률형 아이템 관련 법적 가이드라인"], ans: [0, 1, 3] },
+        { q: "성공적인 게임 컨셉 결정을 위해 필요한 과정을 모두 고르세요.", opts: ["어떤 장르로 할 것인지 결정", "누구를 대상으로 할 것인지 타겟 설정", "우리 게임만의 차별화된 특징 정의", "최신 그래픽 기술을 무조건 전부 적용"], ans: [0, 1, 2] },
+        { q: "게이미피케이션 사례인 <Re-Mission>에 대한 설명으로 옳은 것을 모두 고르세요.", opts: ["암 전문의와 심리학자가 개발에 참여했다.", "환자가 치료 부작용을 이해하도록 돕는다.", "단순한 오락만을 목적으로 제작되었다.", "환자의 스트레스 경감에 도움을 준다."], ans: [0, 1, 3] },
+        { q: "아이디어 발상 단계에서 '장르'를 선택할 때 고려할 점을 모두 고르세요.", opts: ["시장에서 검증된 장르인가?", "우리 팀이 구현 가능한 장르인가?", "타겟 사용자가 선호하는 방식인가?", "무조건 처음 보는 장르여야 하는가?"], ans: [0, 1, 2] },
+        { q: "기획서 작성의 목적으로 옳은 것을 모두 고르세요.", opts: ["프로그래머와 그래픽 디자이너에게 설명하기 위해", "팀원 간의 아이디어를 공유하고 일치시키기 위해", "개발 단계의 시행착오를 줄이기 위해", "기획자의 권위를 세우고 통제하기 위해"], ans: [0, 1, 2] },
+        { q: "경쟁사 분석 시 파악해야 할 항목을 모두 고르세요.", opts: ["동일 장르 인기 게임의 장단점", "경쟁 게임 이용자들의 주된 반응", "경쟁사의 수익 모델(BM)", "우리 회사 내부의 자금 사정"], ans: [0, 1, 2] },
+        { q: "퍼소나 시나리오 구성 요소에 포함되는 것을 모두 고르세요.", opts: ["행동(동기, 니즈)", "상황(태도, 문제)", "목표(개선)", "컴퓨터 하드웨어 사양"], ans: [0, 1, 2] },
+        { q: "기획자가 가져야 할 바람직한 태도를 모두 고르세요.", opts: ["시장 트렌드에 민감하게 반응한다.", "자신의 아이디어를 구체적으로 문서화한다.", "사용자의 입장에서 재미를 고민한다.", "자신이 좋아하는 게임 방식만 고집한다."], ans: [0, 1, 2] }
+    ],
+    essay: [
+        { q: "게임 기획에서 '계획'을 넘어선 '기획(Planning)'의 핵심적인 가치와 문서화의 필요성을 서술하시오.", a: "기획은 막연한 의도를 구체적인 설계로 바꾸는 과정이며, 문서화를 통해 팀원 간의 생각을 공유하고 개발의 시행착오를 줄여 상용화 가능성을 높이는 핵심 가치를 지닙니다." },
+        { q: "시장조사 단계에서 SWOT 분석이 기획 전략 수립에 미치는 영향을 설명하시오.", a: "내부의 강점과 약점, 외부의 기회와 위협을 교차 분석함으로써 우리가 가장 잘 할 수 있는 지점을 찾고 위기에 대비하는 최적의 개발 전략을 수립하게 해줍니다." },
+        { q: "게이미피케이션 사례인 <리미션>을 통해 게임 요소가 비게임 영역에서 어떤 긍정적 역할을 수행할 수 있는지 논하시오.", a: "단순한 정보 전달을 넘어 게임의 상호작용성과 재미를 통해 사용자의 자발적 행동 변화를 유도하고, 치료 과정의 스트레스를 줄이는 등 실질적인 삶의 질 개선에 기여할 수 있습니다." }
+    ]
+};
+// 1. 단답형 렌더링 (버튼 추가)
+const shortContainer = document.getElementById('short-questions');
+data.short.forEach((item, i) => {
+    shortContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <input type="text" id="short-input-${i}" placeholder="답안을 입력하세요">
+            <button class="check-btn" onclick="checkShort(${i}, '${item.a}')">정답 확인</button>
+            <div id="sa${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 2. 사지선다 렌더링 (기존 유지)
+const multiContainer = document.getElementById('multiple-questions');
+data.multiple.forEach((item, i) => {
+    let optsHtml = item.opts.map((opt, oi) => 
+        `<button class="opt-btn" onclick="toggleOpt(this)">${oi+1}. ${opt}</button>`
+    ).join('');
+    
+    multiContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <div class="options-grid" id="opts${i}">${optsHtml}</div>
+            <button class="check-btn" onclick="checkMulti(${i}, [${item.ans}])">정답 확인</button>
+            <div id="ma${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 3. 서술형 렌더링 (버튼 추가)
+const essayContainer = document.getElementById('essay-questions');
+data.essay.forEach((item, i) => {
+    essayContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <textarea id="essay-input-${i}" rows="3" placeholder="생각을 정리해 보세요"></textarea>
+            <button class="check-btn" onclick="showEssay(${i})">모범 답안 보기</button>
+            <div id="ea${i}" class="feedback info"><strong>[강의 기준 예시 답안]</strong><br>${item.a}</div>
+        </div>`;
+});
+
+// --- 로직 함수들 ---
+
+function checkShort(idx, correct) {
+    const val = document.getElementById(`short-input-${idx}`).value.trim();
+    const f = document.getElementById(`sa${idx}`);
+    f.style.display = 'block';
+    if (val.includes(correct) && val !== "") {
+        f.className = 'feedback correct';
+        f.innerHTML = `정답입니다! (핵심 키워드: ${correct})`;
+    } else {
+        f.className = 'feedback wrong';
+        f.innerHTML = `다시 한번 생각해보세요. (정답: ${correct})`;
+    }
+}
+
+function toggleOpt(btn) {
+    btn.classList.toggle('selected');
+}
+
+function checkMulti(qIndex, correctIndices) {
+    const container = document.getElementById(`opts${qIndex}`);
+    const btns = container.querySelectorAll('.opt-btn');
+    const feedback = document.getElementById(`ma${qIndex}`);
+    let selected = [];
+    btns.forEach((btn, idx) => { if(btn.classList.contains('selected')) selected.push(idx); });
+
+    feedback.style.display = 'block';
+    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctIndices.sort());
+    
+    if (isCorrect && selected.length > 0) {
+        feedback.className = 'feedback correct';
+        feedback.innerText = "정확하게 모두 고르셨습니다!";
+    } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerText = `오답입니다. 정답 번호: ${correctIndices.map(v => v+1).join(', ')}`;
+    }
+}
+
+function showEssay(idx) {
+    const f = document.getElementById(`ea${idx}`);
+    // 토글 기능: 이미 보이면 숨기고, 안 보이면 보여줌
+    if (f.style.display === 'block') {
+        f.style.display = 'none';
+    } else {
+        f.style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>
