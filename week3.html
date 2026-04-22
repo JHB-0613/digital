@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털게임과 문화 - 3주차 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; color: #333; }
+        nav { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 14px; transition: 0.3s; }
+        nav a:hover { background: #34495e; }
+        .current { background: #3498db; font-weight: bold; }
+        
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 40px; border-bottom: 3px solid #3498db; display: inline-block; width: 100%; padding-bottom: 10px; }
+        h2 { background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; margin-top: 50px; }
+        
+        .question-card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+        .q-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        /* 사지선다 버튼 스타일 */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .opt-btn { padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .opt-btn:hover { background: #f0f7ff; border-color: #3498db; }
+        .opt-btn.selected { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* 입력창 스타일 */
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; box-sizing: border-box; margin-top: 10px; outline: none; }
+        input[type="text"]:focus, textarea:focus { border-color: #3498db; }
+        
+        .feedback { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; animation: fadeIn 0.5s; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.info { background: #e8f4fd; color: #0c5460; border: 1px solid #bee5eb; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .guide-text { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; }
+        .check-btn { margin-top: 15px; padding: 10px 20px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">2주차</a>
+    <a href="week3.html" class="current">3주차</a>
+    <a href="week4.html">4주차</a>
+    <a href="week5.html">5주차</a>
+    <a href="week6.html">6주차</a>
+    <a href="week7.html">7주차</a>
+    <a href="all.html">전체보기</a>
+</nav>
+
+<h1>3주차: 게임담론과 게임포비아</h1>
+
+<h2>1. 단답형 (답안 입력 후 Enter)</h2>
+<div id="short-questions"></div>
+
+<h2>2. 사지선다 (모두 고르세요 - 버튼 클릭)</h2>
+<div id="multiple-questions"></div>
+
+<h2>3. 서술형 (생각을 정리해 쓴 후 Enter)</h2>
+<div id="essay-questions"></div>
+
+<script>
+// 요청하신 3주차 데이터
+const data = {
+    short: [
+        { q: "특정 대상이나 개념에 대한 지식을 생성함으로써 현실에 관한 설명을 산출하는 방식을 무엇이라 하는가?", a: "담론" },
+        { q: "대중매체가 게임을 폭력이나 중독의 주범으로 프레이밍하여 공포를 조장하는 현상은?", a: "게임포비아" },
+        { q: "게이머의 개입을 통해 사건의 전개와 결과가 달라지는 디지털 게임만의 핵심 특성은?", a: "상호작용성" },
+        { q: "라프 코스터는 게임에서 ( )이란 패턴을 학습하고 마스터하는 과정에서 오는 것이라 했다.", a: "재미" },
+        { q: "도전 과제와 숙련도가 균형을 이룰 때 발생하는 최적의 몰입 상태를 뜻하는 이론은?", a: "플로우" },
+        { q: "2004년 리니지2에서 거대 혈맹의 독재에 맞서 일반 이용자들이 일으킨 대규모 전쟁은?", a: "바츠해방전쟁" },
+        { q: "바츠해방전쟁 당시 저레벨 이용자들이 자발적으로 결성한 군단의 명칭은?", a: "내복단" },
+        { q: "청소년의 심야 시간대 게임 이용을 금지했던 과거 법적 제도의 명칭은?", a: "셧다운제" },
+        { q: "미하이 칙센트가 제시한 개념으로 인간이 최고의 경험을 맛보는 순간을 이르는 말은?", a: "최적경험" },
+        { q: "게임을 유해물질이 아닌 문화적 텍스트로 읽고 가치를 분석하는 활동은?", a: "게임 비평" }
+    ],
+    multiple: [
+        { q: "게임 담론(Discourse)의 특성으로 옳은 것을 모두 고르세요.", opts: ["권력 관계가 반영된다.", "현실에 대한 설명을 산출한다.", "항상 변하지 않는 진리다.", "사회적 지식을 생성한다."], ans: [0, 1, 3] },
+        { q: "게임포비아를 조장하는 미디어의 보도 행태를 모두 고르세요.", opts: ["게임과 폭력 사건을 무리하게 연결한다.", "게임의 교육적 효과를 분석한다.", "게임을 중독성 물질로 정의한다.", "자극적인 프레임을 사용한다."], ans: [0, 2, 3] },
+        { q: "디지털 게임의 '상호작용성'에 대한 설명을 모두 고르세요.", opts: ["게이머의 선택이 결과에 영향을 준다.", "일방향적인 정보 전달 방식이다.", "게이머를 능동적 주체로 만든다.", "시스템의 즉각적 피드백이 존재한다."], ans: [0, 2, 3] },
+        { q: "라프 코스터의 '재미' 이론 중 옳은 것을 모두 고르세요.", opts: ["패턴을 학습할 때 재미를 느낀다.", "지루함은 패턴이 다 파악되었을 때 온다.", "반복적 단순 작업이 재미의 핵심이다.", "뇌는 패턴을 찾는 것을 즐긴다."], ans: [0, 1, 3] },
+        { q: "몰입(Flow) 상태의 특징을 모두 고르세요.", opts: ["시간 흐름을 망각한다.", "난이도가 너무 낮을 때 발생한다.", "행동과 의식이 통합된다.", "명확한 피드백이 주어진다."], ans: [0, 2, 3] },
+        { q: "바츠해방전쟁의 의의를 모두 고르세요.", opts: ["사이버 명예혁명으로 평가받는다.", "온라인상 민주주의의 가능성을 보여준다.", "단순한 버그 악용 사례일 뿐이다.", "자발적인 유저 연대를 증명했다."], ans: [0, 1, 3] },
+        { q: "셧다운제 담론에 포함된 논리를 모두 고르세요.", opts: ["게임은 잠재적 위험 물질이다.", "국가는 청소년을 보호할 의무가 있다.", "게임은 청소년의 수면권을 침해한다.", "청소년의 자율권이 최우선이다."], ans: [0, 1, 2] },
+        { q: "내복단의 특징으로 옳은 것을 모두 고르세요.", opts: ["바츠 서버의 전설적인 고레벨들이었다.", "다른 서버 이용자들도 원정을 왔다.", "인해전술로 독재 혈맹에 저항했다.", "자발적인 저항 정신의 상징이 되었다."], ans: [1, 2, 3] },
+        { q: "게임 비평 시 '재현' 측면에서 던져야 할 질문을 모두 고르세요.", opts: ["무엇을 어떻게 보여주는가?", "서버의 데이터 처리 속도는?", "누가 폭력의 대상으로 설정되는가?", "성공을 어떤 이미지로 표현하는가?"], ans: [0, 2, 3] },
+        { q: "게임 중독 담론의 한계를 지적하는 이유를 모두 고르세요.", opts: ["사회적 환경 요인을 무시한다.", "과학적 인과관계가 부족한 경우가 많다.", "게임의 긍정적 측면을 완전히 배제한다.", "모든 게임 플레이를 질병으로 본다."], ans: [0, 1, 2] },
+        { q: "칙센트미하이의 플로우(Flow, 몰입) 모델에 대한 설명으로 옳은 것을 모두 고르세요.", opts: ["도전 과제가 실력보다 너무 높으면 불안을 느낀다.", "실력이 도전 과제보다 너무 높으면 지루함을 느낀다.", "도전과 실력이 균형을 이룰 때 최적 경험이 발생한다.", "난이도가 낮을수록 몰입도가 급격히 상승한다."], ans: [0, 1, 2] },
+        { q: "디지털 게임 분석의 3대 요소에 포함되는 것을 모두 고르세요.", opts: ["재현 (Representation)", "시스템 (System)", "사회 (Society)", "용량 (Storage)"], ans: [0, 1, 2] },
+        { q: "미디어가 생성하는 담론의 힘에 대한 설명을 모두 고르세요.", opts: ["대중의 인식을 형성한다.", "법률이나 정책에 영향을 준다.", "개인의 취향에는 전혀 영향이 없다.", "특정 대상을 사회적으로 규정한다."], ans: [0, 1, 3] },
+        { q: "게임의 재미를 방해하는 요소를 모두 고르세요.", opts: ["학습할 패턴이 아예 없을 때", "도전 과제가 너무 어려워 포기할 때", "즉각적인 보상이 주어질 때", "패턴이 너무 단순해 금방 익힐 때"], ans: [0, 1, 3] },
+        { q: "바츠해방전쟁 당시 DK혈맹의 행동으로 옳은 것을 모두 고르세요.", opts: ["사냥터 통제 및 세금 징수", "일반 유저에게 친절한 가이드 제공", "반대 세력에 대한 척살령", "게임 경제 독점"], ans: [0, 2, 3] }
+    ],
+    essay: [
+        { q: "미디어가 조장하는 '게임포비아'가 실제 게임 문화에 끼치는 부정적 영향은?", a: "게임 이용자를 잠재적 범죄자로 낙인찍고, 규제 위주의 정책을 정당화하여 문화적 다양성을 훼손합니다." },
+        { q: "디지털 게임의 '상호작용성'이 게이머를 어떻게 변화시키는지 서술하시오.", a: "수동적으로 정보를 수용하던 관객에서, 자신의 선택으로 서사를 완성해가는 능동적 생산자로 변화시킵니다." },
+        { q: "바츠해방전쟁이 '사이버 민주주의'의 사례로 불리는 이유는 무엇인가?", a: "거대 권력의 독재에 맞서 익명의 다수가 자발적으로 연대하여 자유를 쟁취한 정치적 행동이기 때문입니다." }
+    ]
+};
+
+// 단답형 렌더링
+const shortContainer = document.getElementById('short-questions');
+data.short.forEach((item, i) => {
+    shortContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <input type="text" placeholder="답안을 입력하고 Enter를 누르세요" onkeypress="checkShort(event, '${item.a}', 'sa${i}')">
+            <div id="sa${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 사지선다 렌더링
+const multiContainer = document.getElementById('multiple-questions');
+data.multiple.forEach((item, i) => {
+    let optsHtml = item.opts.map((opt, oi) => 
+        `<button class="opt-btn" onclick="toggleOpt(this)">${oi+1}. ${opt}</button>`
+    ).join('');
+    
+    multiContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <div class="options-grid" id="opts${i}">${optsHtml}</div>
+            <button class="check-btn" onclick="checkMulti(${i}, [${item.ans}])">정답 확인</button>
+            <div id="ma${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 서술형 렌더링
+const essayContainer = document.getElementById('essay-questions');
+data.essay.forEach((item, i) => {
+    essayContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <textarea rows="3" placeholder="생각을 자유롭게 쓰고 Enter를 누르세요 (Shift+Enter는 줄바꿈)" onkeypress="checkEssay(event, 'ea${i}')"></textarea>
+            <div id="ea${i}" class="feedback info"><strong>[강의 기준 예시 답안]</strong><br>${item.a}</div>
+        </div>`;
+});
+
+// 로직 함수들
+function checkShort(e, correct, feedbackId) {
+    if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        const f = document.getElementById(feedbackId);
+        f.style.display = 'block';
+        if (val.includes(correct)) {
+            f.className = 'feedback correct';
+            f.innerHTML = `정답입니다! (핵심 키워드: ${correct})`;
+        } else {
+            f.className = 'feedback wrong';
+            f.innerHTML = `다시 한번 생각해보세요. (정답: ${correct})`;
+        }
+    }
+}
+
+function toggleOpt(btn) {
+    btn.classList.toggle('selected');
+}
+
+function checkMulti(qIndex, correctIndices) {
+    const container = document.getElementById(`opts${qIndex}`);
+    const btns = container.querySelectorAll('.opt-btn');
+    const feedback = document.getElementById(`ma${qIndex}`);
+    let selected = [];
+    btns.forEach((btn, idx) => { if(btn.classList.contains('selected')) selected.push(idx); });
+
+    feedback.style.display = 'block';
+    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctIndices.sort());
+    
+    if (isCorrect) {
+        feedback.className = 'feedback correct';
+        feedback.innerText = "정확하게 모두 고르셨습니다!";
+    } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerText = `오답입니다. 정답 번호: ${correctIndices.map(v => v+1).join(', ')}`;
+    }
+}
+
+function checkEssay(e, feedbackId) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById(feedbackId).style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>

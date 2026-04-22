@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털게임과 문화 - 2주차 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; color: #333; }
+        nav { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 14px; transition: 0.3s; }
+        nav a:hover { background: #34495e; }
+        .current { background: #3498db; font-weight: bold; }
+        
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 40px; border-bottom: 3px solid #3498db; display: inline-block; width: 100%; padding-bottom: 10px; }
+        h2 { background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; margin-top: 50px; }
+        
+        .question-card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+        .q-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        /* 사지선다 버튼 스타일 */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .opt-btn { padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .opt-btn:hover { background: #f0f7ff; border-color: #3498db; }
+        .opt-btn.selected { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* 입력창 스타일 */
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; box-sizing: border-box; margin-top: 10px; outline: none; }
+        input[type="text"]:focus, textarea:focus { border-color: #3498db; }
+        
+        .feedback { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; animation: fadeIn 0.5s; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.info { background: #e8f4fd; color: #0c5460; border: 1px solid #bee5eb; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .guide-text { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; }
+        .check-btn { margin-top: 15px; padding: 10px 20px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="current">2주차</a>
+    <a href="week3.html">3주차</a>
+    <a href="week4.html">4주차</a>
+    <a href="week5.html">5주차</a>
+    <a href="week6.html">6주차</a>
+    <a href="week7.html">7주차</a>
+    <a href="all.html">전체보기</a>
+</nav>
+
+<h1>2주차: 게임이란 무엇인가</h1>
+
+<h2>1. 단답형 (답안 입력 후 Enter)</h2>
+<div id="short-questions"></div>
+
+<h2>2. 사지선다 (모두 고르세요 - 버튼 클릭)</h2>
+<div id="multiple-questions"></div>
+
+<h2>3. 서술형 (생각을 정리해 쓴 후 Enter)</h2>
+<div id="essay-questions"></div>
+
+<script>
+// 데이터 정의
+const data = {
+    short: [
+        { q: "특별한 목적이나 보상 없이 즐거움 그 자체를 위해 행하는 자발적 활동은?", a: "놀이" },
+        { q: "명확한 규칙과 목표가 있고, 결과에 따라 승패나 보상이 나뉘는 구조화된 형태는?", a: "게임" },
+        { q: "게임 분석의 3대 요소 중, '무엇을 어떻게 보여주는가'를 분석하는 층위는?", a: "재현" },
+        { q: "게임 분석의 3대 요소 중, 게임의 규칙과 메커니즘을 분석하는 층위는?", a: "시스템" },
+        { q: "게임 분석의 3대 요소 중, 게임 외부의 산업, 플랫폼, 커뮤니티를 분석하는 층위는?", a: "사회" },
+        { q: "게임을 분석할 때 단순히 좋고 나쁨을 가리는 '판정' 대신 무엇을 던져야 하는가?", a: "질문" },
+        { q: "이용자에게 어떤 경험과 재미, 감동을 주는가에 집중하는 관점은?", a: "미학적 관점" },
+        { q: "플레이어의 입력에 시스템이 즉각적으로 반응하여 상태를 변화시키는 게임만의 핵심 특성은?", a: "상호작용성" },
+        { q: "상호작용을 통해 플레이어가 게임 세계에 깊이 빠져드는 상태를 무엇이라 하는가?", a: "몰입" },
+        { q: "2주차 수업의 핵심 미션은 디지털 게임의 정의와 (  )을 이해하는 것이다.", a: "특성" }
+    ],
+multiple: [
+        { q: "다음 중 게임의 '상호작용성'과 관련이 깊은 특징을 모두 고르세요.", opts: ["플레이어의 선택과 결과", "시스템의 즉각적 피드백", "일방적인 정보 전달", "참여를 통한 서사 구성"], ans: [0, 1, 3] },
+        { q: "상호작용성이 강화된 게임 분석의 '시스템' 층위 질문을 모두 고르세요.", opts: ["어떤 보상 루프가 작동하는가?", "인물의 대사가 시적인가?", "플레이어에게 어떤 행동을 유도하는가?", "규칙이 공정한가?"], ans: [0, 2, 3] },
+        { q: "미학적 관점에서 상호작용이 플레이어에게 주는 영향을 모두 고르세요.", opts: ["강한 몰입감 제공", "직접적인 참여 경험", "단순한 시각적 감상", "성취감과 보상 체감"], ans: [0, 1, 3] },
+        { q: "사회(Society) 분석 층위의 질문 예시를 모두 고르세요.", opts: ["무엇을 팔고 누가 유리해지는가?", "누가 왜 폭력의 대상으로 설정되는가?", "수익 모델은 무엇인가?", "플랫폼은 어디인가?"], ans: [0, 2, 3] },
+        { q: "강의에서 언급된 '게임 분석의 태도' 중 옳은 것을 모두 고르세요.", opts: ["상호작용의 의도 파악", "단순한 선악 판정 지양", "이면의 질문 던지기", "그래픽 수준만 평가하기"], ans: [0, 1, 2] },
+        { q: "시스템(System) 분석과 관련된 키워드를 모두 고르세요.", opts: ["메커니즘", "보상 구조", "커뮤니티 규범", "게임의 규칙"], ans: [0, 1, 3] },
+        { q: "다음 중 '놀이'와 구분되는 '게임'의 특징을 모두 고르세요.", opts: ["자발적 즐거움", "명확한 규칙", "설정된 목표", "결과에 따른 보상"], ans: [1, 2, 3] },
+        { q: "다음 중 '재현(Representation)' 분석 시 고려해야 할 요소를 모두 고르세요.", opts: ["성공/실패의 이미지 표현", "인물의 시각적/언어적 상징", "커뮤니티 내의 갈등 양상", "중심과 배경으로 밀려나는 요소"], ans: [0, 1, 3] },
+        { q: "게임을 분석할 때 지양해야 할 태도와 지향해야 할 태도를 모두 고르세요. (지향할 태도를 선택)", opts: ["단순히 좋다/나쁘다 판정하기", "이면에 숨겨진 질문 던지기", "왜 이렇게 설계되었는지 분석하기", "사회적 맥락과 연결하기"], ans: [1, 2, 3] },
+        { q: "다음 중 '재현(Representation)' 분석 시 고려해야 할 요소를 모두 고르세요.", opts: ["누가 시선을 장악하는가?", "누가 행동의 주체인가?", "누가 배경으로 소외되는가?", "게임의 용량이 얼마인가?"], ans: [0, 1, 2] },
+        // 사회(Society) 층위: 제도화, 플랫폼화, 노동화 관련 추가 문제
+        { 
+            q: "게임의 '제도화(Institutionalization)' 현상과 관련된 사례를 모두 고르세요.", 
+            opts: ["게임 셧다운제와 같은 법적 규제", "질병 코드 도입 등 의학적 정의", "e스포츠의 정식 종목 채택", "개별 플레이어의 단순한 조작"], 
+            ans: [0, 1, 2] 
+        },
+        { 
+            q: "게임의 '플랫폼화(Platformization)' 분석 시 고려해야 할 요소를 모두 고르세요.", 
+            opts: ["유튜브/트위치 등 스트리밍 서비스와의 연계", "게임 내 스킨 및 패스 등의 수익 모델", "추천 알고리즘에 의한 게임 노출 방식", "캐릭터의 공격력 수치 계산"], 
+            ans: [0, 1, 2] 
+        },
+        { 
+            q: "게임의 '노동화 및 전문화' 담론에 해당하는 현상을 모두 고르세요.", 
+            opts: ["프로게이머라는 직업의 등장", "게임 내 재화를 벌기 위한 반복적 플레이(작업장)", "게임을 통한 자아실현과 순수 놀이", "게임 방송을 진행하는 스트리머의 활동"], 
+            ans: [0, 1, 3] 
+        },
+        { 
+            q: "게임 분석의 '사회' 층위에서 '무엇을 팔고 누가 유리해지는가?'라는 질문이 향하는 곳을 모두 고르세요.", 
+            opts: ["게임 산업의 과금 구조(BM)", "확률형 아이템의 사행성 문제", "플랫폼의 독점적 권력", "챔피언의 시각적 디자인"], 
+            ans: [0, 1, 2] 
+        },
+        { 
+            q: "전통적인 '놀이'가 현대 디지털 게임으로 넘어오며 나타난 변화로 옳은 것을 모두 고르세요.", 
+            opts: ["비즈니스 모델을 통한 산업화", "데이터 분석을 통한 이용자 통제", "완전한 자발성만의 유지", "법적·제도적 관리의 대상이 됨"], 
+            ans: [0, 1, 3] 
+        }
+    ],
+    essay: [
+        { q: "강의 내용을 바탕으로 '놀이'와 '게임'의 결정적인 차이점을 설명하시오.", a: "놀이는 보상 없는 즐거움 자체인 반면, 게임은 규칙, 목표, 승패 및 보상이라는 구조적 요소가 필수적으로 수반됩니다." },
+        { q: "단순히 '폭력적이다'라고 말하는 비평과 '재현 분석'의 차이는 무엇입니까?", a: "단순 비평은 현상에 대한 판정에 그치지만, 재현 분석은 폭력이 정당화되는 맥락과 대상 설정의 이유(상징성)를 질문합니다." },
+        { q: "게임 분석의 3요소(재현, 시스템, 사회)가 각각 무엇을 보는지 비교하시오.", a: "재현은 시각적/언어적 상징을, 시스템은 규칙과 메커니즘을, 사회는 산업과 커뮤니티의 외부 맥락을 분석합니다." }
+    ]
+};
+
+// 단답형 렌더링
+const shortContainer = document.getElementById('short-questions');
+data.short.forEach((item, i) => {
+    shortContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <input type="text" placeholder="답안을 입력하고 Enter를 누르세요" onkeypress="checkShort(event, '${item.a}', 'sa${i}')">
+            <div id="sa${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 사지선다 렌더링
+const multiContainer = document.getElementById('multiple-questions');
+data.multiple.forEach((item, i) => {
+    let optsHtml = item.opts.map((opt, oi) => 
+        `<button class="opt-btn" onclick="toggleOpt(this)">${oi+1}. ${opt}</button>`
+    ).join('');
+    
+    multiContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <div class="options-grid" id="opts${i}">${optsHtml}</div>
+            <button class="check-btn" onclick="checkMulti(${i}, [${item.ans}])">정답 확인</button>
+            <div id="ma${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 서술형 렌더링
+const essayContainer = document.getElementById('essay-questions');
+data.essay.forEach((item, i) => {
+    essayContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <textarea rows="3" placeholder="생각을 자유롭게 쓰고 Enter를 누르세요 (Shift+Enter는 줄바꿈)" onkeypress="checkEssay(event, 'ea${i}')"></textarea>
+            <div id="ea${i}" class="feedback info"><strong>[강의 기준 예시 답안]</strong><br>${item.a}</div>
+        </div>`;
+});
+
+// 로직 함수들
+function checkShort(e, correct, feedbackId) {
+    if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        const f = document.getElementById(feedbackId);
+        f.style.display = 'block';
+        if (val.includes(correct)) {
+            f.className = 'feedback correct';
+            f.innerHTML = `정답입니다! (핵심 키워드: ${correct})`;
+        } else {
+            f.className = 'feedback wrong';
+            f.innerHTML = `다시 한번 생각해보세요. (정답: ${correct})`;
+        }
+    }
+}
+
+function toggleOpt(btn) {
+    btn.classList.toggle('selected');
+}
+
+function checkMulti(qIndex, correctIndices) {
+    const container = document.getElementById(`opts${qIndex}`);
+    const btns = container.querySelectorAll('.opt-btn');
+    const feedback = document.getElementById(`ma${qIndex}`);
+    let selected = [];
+    btns.forEach((btn, idx) => { if(btn.classList.contains('selected')) selected.push(idx); });
+
+    feedback.style.display = 'block';
+    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctIndices.sort());
+    
+    if (isCorrect) {
+        feedback.className = 'feedback correct';
+        feedback.innerText = "정확하게 모두 고르셨습니다!";
+    } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerText = `오답입니다. 정답 번호: ${correctIndices.map(v => v+1).join(', ')}`;
+    }
+}
+
+function checkEssay(e, feedbackId) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById(feedbackId).style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>

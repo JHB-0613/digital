@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털게임과 문화 - 3주차 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; color: #333; }
+        nav { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 14px; transition: 0.3s; }
+        nav a:hover { background: #34495e; }
+        .current { background: #3498db; font-weight: bold; }
+        
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 40px; border-bottom: 3px solid #3498db; display: inline-block; width: 100%; padding-bottom: 10px; }
+        h2 { background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; margin-top: 50px; }
+        
+        .question-card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+        .q-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        /* 사지선다 버튼 스타일 */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .opt-btn { padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .opt-btn:hover { background: #f0f7ff; border-color: #3498db; }
+        .opt-btn.selected { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* 입력창 스타일 */
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; box-sizing: border-box; margin-top: 10px; outline: none; }
+        input[type="text"]:focus, textarea:focus { border-color: #3498db; }
+        
+        .feedback { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; animation: fadeIn 0.5s; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.info { background: #e8f4fd; color: #0c5460; border: 1px solid #bee5eb; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .guide-text { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; }
+        .check-btn { margin-top: 15px; padding: 10px 20px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">2주차</a>
+    <a href="week3.html">3주차</a>
+    <a href="week4.html" class="current">4주차</a>
+    <a href="week5.html">5주차</a>
+    <a href="week6.html">6주차</a>
+    <a href="week7.html">7주차</a>
+    <a href="all.html">전체보기</a>
+</nav>
+
+<h1>4주차: 게임의 시선</h1>
+
+<h2>1. 단답형 (답안 입력 후 Enter)</h2>
+<div id="short-questions"></div>
+
+<h2>2. 사지선다 (모두 고르세요 - 버튼 클릭)</h2>
+<div id="multiple-questions"></div>
+
+<h2>3. 서술형 (생각을 정리해 쓴 후 Enter)</h2>
+<div id="essay-questions"></div>
+
+<script>
+// 요청하신 3주차 데이터
+const data = {
+    short: [
+        { q: "권력을 가진 주체가 대상을 바라보는 방식을 의미하며, 재현의 방식을 결정하는 이것은?", a: "시선" },
+        { q: "과거 예술 작품에서 시선의 주체는 주로 후원자나 왕이었으나, 현대 게임에서는 주로 누구의 시선이 중심이 되는가?", a: "플레이어" },
+        { q: "로라 멀비가 제시한 개념으로, 미디어 속 시선이 남성적 욕망을 중심으로 구성된다는 이론은?", a: "남성 응시" },
+        { q: "여성 캐릭터가 서사의 주체이기보다 감상의 대상으로 소비되는 현상을 뜻하는 로라 멀비의 용어는?", a: "여성 객체화" },
+        { q: "사회가 특정 집단(남성/여성 등)에 대해 고정적으로 가지고 있는 편견이나 이미지를 무엇이라 하는가?", a: "스테레오타입" },
+        { q: "남성 캐릭터가 주로 근육질의 강인함과 폭력적 해결사로 묘사되는 고정된 남성성을 무엇이라 하는가?", a: "헤게모닉 남성성" },
+        { q: "차별적 언어나 행동을 피하고 소수자를 배제하지 않으려는 '도의적 공정성'을 뜻하는 약어는?", a: "PC" },
+        { q: "게임 속 여성 캐릭터의 노출도와 방어력이 비례한다는 모순적인 상황을 풍자하는 용어는?", a: "비키니 아머" },
+        { q: "다양한 인종이나 가치관을 게임에 반영하는 것은 윤리적 문제일 뿐만 아니라 시장 확대를 위한 ( ) 전략이기도 하다.", a: "상업적" },
+        { q: "예술 작품이나 게임 이미지가 단순히 만들어지는 것이 아니라 제작자의 의도와 권력이 투영되는 것을 ( )이라 한다.", a: "재현" }
+    ],
+    multiple: [
+        { q: "역사 속 예술 작품의 시선(Gaze)에 대한 설명으로 옳은 것을 모두 고르세요.", opts: ["베르사이유 궁전은 왕의 권위를 드러내는 시선으로 설계되었다.", "전통적 회화에서 여성은 주로 '보여지는 존재'로 재현되었다.", "이미지는 제작자의 욕망이나 후원자의 의도와 무관하게 제작된다.", "시선의 주체가 누구냐에 따라 그림 속 대상의 배치가 달라진다."], ans: [0, 1, 3] },
+        { q: "로라 멀비가 정의한 미디어의 세 가지 시선에 포함되는 것을 모두 고르세요.", opts: ["카메라의 시선", "등장인물들의 시선", "관객(플레이어)의 시선", "비평가의 시선"], ans: [0, 1, 2] },
+        { q: "상업 게임에서 여성 캐릭터가 재현되는 일반적인 특징을 모두 고르세요.", opts: ["서사적 능력보다 외형적 매력이 먼저 강조된다.", "개별 캐릭터의 성격보다 노출이나 포즈가 부각된다.", "항상 남성 캐릭터보다 높은 사회적 지위를 갖는다.", "행동하는 인물보다 감상되는 인물로 그려지기 쉽다."], ans: [0, 1, 3] },
+        { q: "게임 속 남성 스테레오타입(헤게모닉 남성성)의 특징을 모두 고르세요.", opts: ["강력한 근육과 신체적 위협감", "감정 표현의 억제와 분노 중심의 서사", "주로 보호받아야 하는 수동적 존재", "폭력을 통한 문제 해결의 정당화"], ans: [0, 1, 3] },
+        { q: "다양성(Diversity)이 게임 기획에서 중요한 이유를 모두 고르세요.", opts: ["전 세계 게임 인구의 구성이 다양해지고 있기 때문", "반복되는 스테레오타입은 플레이어를 지루하게 만들기 때문", "특정 집단을 배제하지 않는 도의적 공정성을 지키기 위해", "게임 용량을 줄이는 데 효과적이기 때문"], ans: [0, 1, 2] },
+        { q: "남성 응시(Male Gaze)가 게임 디자인에 미치는 영향을 모두 고르세요.", opts: ["여성 캐릭터의 불필요한 신체 클로즈업 앵글", "여성 캐릭터를 위한 과도한 유료 의상(코스튬) 중심 설계", "모든 캐릭터의 성별 비중을 항상 5:5로 맞춤", "남성 플레이어의 욕망을 만족시키는 캐릭터 디자인"], ans: [0, 1, 3] },
+        { q: "게임 비평에서 '재현'을 분석할 때 중요한 질문을 모두 고르세요.", opts: ["누가 시선을 장악하고 있는가?", "누가 행동의 주체이고 누구는 배경인가?", "이미지가 어떤 욕망을 투영하고 있는가?", "서버가 얼마나 많은 동시 접속자를 감당하는가?"], ans: [0, 1, 2] },
+        { q: "정치적 올바름(PC)과 관련하여 게임 업계에서 논의되는 내용을 모두 고르세요.", opts: ["성별, 인종, 성적 지향의 다양성 확보", "차별적인 표현이나 혐오 발언의 배제", "표현의 자유와의 충돌 및 갈등", "최신 그래픽 기술의 사용 여부"], ans: [0, 1, 2] },
+        { q: "게임 속 남성 캐릭터의 재구성 시도(예: <갓 오브 워>)에 대한 설명으로 옳은 것을 모두 고르세요.", opts: ["무조건적인 폭력성만 강조한다.", "아버지로서의 취약함 등 다양한 감정을 표현한다.", "전통적인 남성상에서 벗어나려 노력한다.", "남성성을 포기하고 여성 캐릭터로 대체한다."], ans: [1, 2] },
+        { q: "여성 캐릭터의 '성적 대상화' 사례로 볼 수 있는 것을 모두 고르세요.", opts: ["전투와 무관한 선정적인 포즈나 의상", "신체 특정 부위를 강조하는 카메라 워킹", "캐릭터의 능력치보다 외모가 서사의 핵심이 됨", "전사로서의 강인함과 갑옷의 기능성 강조"], ans: [0, 1, 2] },
+        { q: "게임의 '시선 권력'이 변화해온 과정으로 옳은 것을 모두 고르세요.", opts: ["신 중심(중세)에서 인간 중심(근대)으로 이동", "절대 왕권의 시선에서 자본과 소비자의 시선으로 이동", "플레이어가 시점(카메라)을 직접 조종하는 형태로 변화", "항상 제작자의 시선만이 절대적으로 유지됨"], ans: [0, 1, 2] },
+        { q: "스테레오타입의 반복 재현이 미치는 사회적 영향으로 옳은 것을 모두 고르세요.", opts: ["특정 이미지를 '당연하다'고 믿게 만드는 통념 형성", "소수자나 약자에 대한 차별과 배제를 고착화", "현실 세계의 다양성을 인식하는 데 방해", "개인의 창의성을 무조건적으로 증진"], ans: [0, 1, 2] },
+        { q: "게임 기획자가 캐릭터를 설계할 때 고려해야 할 도의적 책임을 모두 고르세요.", opts: ["자신의 선택이 누구를 우상화하고 누구를 배제하는가?", "재현 방식이 사회적 통념에 어떤 영향을 미치는가?", "어떤 이미지가 게이머에게 잘못된 인식을 심어주는가?", "게이머가 아이템을 얼마나 비싸게 구매할 것인가?"], ans: [0, 1, 2] },
+        { q: "전통적 남성성에서 '분노'가 강조되는 이유와 관련된 설명을 모두 고르세요.", opts: ["남성에게 허용된 거의 유일한 감정으로 재현됨", "폭력적 해결을 정당화하는 수단으로 쓰임", "전통적인 강인한 전사 이미지를 강화함", "남성의 연약함과 슬픔을 표현하기 위한 도구임"], ans: [0, 1, 2] },
+        { q: "여성 게이머의 증가에 따른 게임 산업의 변화로 옳은 것을 모두 고르세요.", opts: ["여성 캐릭터의 서사가 더 깊고 주체적으로 변함", "노출 위주의 디자인에 대한 비판적 목소리 강화", "다양한 여성상을 보여주는 인디 게임들의 등장", "남성 전용 게임들만 더욱 많이 제작됨"], ans: [0, 1, 2] }
+    ],
+    essay: [
+        { q: "로라 멀비의 '남성 응시(Male Gaze)' 개념을 게임 속 여성 캐릭터 재현 사례와 연결하여 설명하시오.", a: "카메라 앵글이나 의상 디자인이 남성 플레이어의 시각적 즐거움을 위해 설계되어, 여성을 주체적 인물이 아닌 감상의 '객체'로 전락시키는 것을 의미합니다." },
+        { q: "게임 속 남성 캐릭터의 스테레오타입(헤게모닉 남성성)이 갖는 문제점과 최근의 변화 양상을 서술하시오.", a: "폭력과 강인함만을 강조해 다양한 감정을 억제해 왔으나, 최근에는 부성애나 내면적 고뇌를 표현하며 남성성을 재구성하려는 시도가 나타나고 있습니다." },
+        { q: "게임 기획에서 '다양성'과 '도의적 공정성(PC)'이 단순히 윤리적 문제를 넘어 왜 상업적 전략이 될 수 있는지 논하시오.", a: "전 세계 게임 이용자층이 특정 성별과 인종에 국한되지 않고 확장됨에 따라, 다양한 문화를 존중하는 재현이 더 넓은 시장과 타겟을 확보하는 데 필수적이기 때문입니다." }
+    ]
+};
+// 단답형 렌더링
+const shortContainer = document.getElementById('short-questions');
+data.short.forEach((item, i) => {
+    shortContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <input type="text" placeholder="답안을 입력하고 Enter를 누르세요" onkeypress="checkShort(event, '${item.a}', 'sa${i}')">
+            <div id="sa${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 사지선다 렌더링
+const multiContainer = document.getElementById('multiple-questions');
+data.multiple.forEach((item, i) => {
+    let optsHtml = item.opts.map((opt, oi) => 
+        `<button class="opt-btn" onclick="toggleOpt(this)">${oi+1}. ${opt}</button>`
+    ).join('');
+    
+    multiContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <div class="options-grid" id="opts${i}">${optsHtml}</div>
+            <button class="check-btn" onclick="checkMulti(${i}, [${item.ans}])">정답 확인</button>
+            <div id="ma${i}" class="feedback"></div>
+        </div>`;
+});
+
+// 서술형 렌더링
+const essayContainer = document.getElementById('essay-questions');
+data.essay.forEach((item, i) => {
+    essayContainer.innerHTML += `
+        <div class="question-card">
+            <span class="q-text">${i+1}. ${item.q}</span>
+            <textarea rows="3" placeholder="생각을 자유롭게 쓰고 Enter를 누르세요 (Shift+Enter는 줄바꿈)" onkeypress="checkEssay(event, 'ea${i}')"></textarea>
+            <div id="ea${i}" class="feedback info"><strong>[강의 기준 예시 답안]</strong><br>${item.a}</div>
+        </div>`;
+});
+
+// 로직 함수들
+function checkShort(e, correct, feedbackId) {
+    if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        const f = document.getElementById(feedbackId);
+        f.style.display = 'block';
+        if (val.includes(correct)) {
+            f.className = 'feedback correct';
+            f.innerHTML = `정답입니다! (핵심 키워드: ${correct})`;
+        } else {
+            f.className = 'feedback wrong';
+            f.innerHTML = `다시 한번 생각해보세요. (정답: ${correct})`;
+        }
+    }
+}
+
+function toggleOpt(btn) {
+    btn.classList.toggle('selected');
+}
+
+function checkMulti(qIndex, correctIndices) {
+    const container = document.getElementById(`opts${qIndex}`);
+    const btns = container.querySelectorAll('.opt-btn');
+    const feedback = document.getElementById(`ma${qIndex}`);
+    let selected = [];
+    btns.forEach((btn, idx) => { if(btn.classList.contains('selected')) selected.push(idx); });
+
+    feedback.style.display = 'block';
+    const isCorrect = JSON.stringify(selected.sort()) === JSON.stringify(correctIndices.sort());
+    
+    if (isCorrect) {
+        feedback.className = 'feedback correct';
+        feedback.innerText = "정확하게 모두 고르셨습니다!";
+    } else {
+        feedback.className = 'feedback wrong';
+        feedback.innerText = `오답입니다. 정답 번호: ${correctIndices.map(v => v+1).join(', ')}`;
+    }
+}
+
+function checkEssay(e, feedbackId) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById(feedbackId).style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>
